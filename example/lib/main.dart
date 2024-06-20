@@ -94,7 +94,25 @@ class _MyAppState extends State<MyApp> {
                                   child: Text(list.id)),
                             ))
                         .toList())),
-            Flexible(child: ListView())
+            Flexible(
+                child: ListView(
+              shrinkWrap: true,
+              children: reminders
+                  .map<Widget>(
+                    (reminder) => ListTile(
+                      title: Text(reminder.title),
+                      subtitle: Column(
+                        children: [Text(reminder.notes), Text(reminder.url)],
+                      ),
+                      leading: Checkbox(
+                        value: reminder.isCompleted,
+                        onChanged: (value) {},
+                      ),
+                      trailing: Text(reminder.dueDate ?? 'No date'),
+                    ),
+                  )
+                  .toList(),
+            ))
           ],
         ),
       ),

@@ -40,12 +40,40 @@ class RemindersPlugin extends PlatformInterface {
   }
 
   Future<List> getReminders(AppleCalendar list) async {
-    print('getReminders: ${list.title}');
     final reminders = await channel.invokeListMethod<Map<Object?, Object?>>(
         'getReminders', {'id': list.id});
-    print(reminders);
-    return [];
+    if (reminders == null) return [];
+    return reminders
+        .map<Reminder>((reminder) => Reminder.fromJson(reminder))
+        .toList();
   }
+}
+
+class Reminder {
+  String list;
+  final String id;
+  final String title;
+  DateTime? dueDate;
+  int priority;
+  bool isCompleted;
+  String notes;
+  final String url;
+
+  Reminder.fromJson(Map<Object?, Object?> json)
+      : list = json['list'] as String,
+        id = json['id'] as String,
+        title = json['title'] as String,
+        dueDate = json['dueDate'] != null
+            ? DateTime.tryParse(json['dueDate'] as String)
+            : null,
+        priority = int.tryParse(json['priority'] as String) ?? 0,
+        isCompleted = json['isCompleted'] == 'true',
+        notes = json['notes'] as String,
+        url = json['url'] as String;
+
+  @override
+  String toString() =>
+      '$title is due $dueDate and is done: $isCompleted\n$url\t$notes';
 }
 
 class AppleCalendar {
