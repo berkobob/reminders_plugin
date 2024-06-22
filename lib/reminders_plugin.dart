@@ -14,8 +14,8 @@ class RemindersPlugin extends PlatformInterface {
     return version;
   }
 
-  Future<bool?> hasAccess() async =>
-      await channel.invokeMethod<bool>('hasAccess');
+  Future<bool> hasAccess() async =>
+      (await channel.invokeMethod<bool>('hasAccess')) ?? false;
 
   Future<bool?> requestAccess() async =>
       await channel.invokeMethod<bool>('requestAccess');
