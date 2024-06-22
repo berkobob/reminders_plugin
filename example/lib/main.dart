@@ -19,8 +19,8 @@ class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   bool _hasAccess = false;
   final _remindersPlugin = RemindersPlugin();
-  AppleCalendar? _defaultList;
-  List<AppleCalendar> lists = [];
+  AppleList? _defaultList;
+  List<AppleList> lists = [];
   List reminders = [];
 
   @override
@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> {
     setState(() {});
   }
 
-  Future<void> getReminders(AppleCalendar list) async {
+  Future<void> getReminders(AppleList list) async {
     final results = await _remindersPlugin.getReminders(list);
 
     setState(() {

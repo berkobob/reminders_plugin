@@ -20,26 +20,26 @@ class RemindersPlugin extends PlatformInterface {
   Future<bool?> requestAccess() async =>
       await channel.invokeMethod<bool>('requestAccess');
 
-  Future<AppleCalendar?> getDefaultList() async {
+  Future<AppleList?> getDefaultList() async {
     final list =
         await channel.invokeMapMethod<String, String>('getDefaultList');
     if (list case {'title': final title, 'id': final id}) {
-      return AppleCalendar(title: title, id: id);
+      return AppleList(title: title, id: id);
     }
     return null;
   }
 
-  Future<List<AppleCalendar>> getReminderLists() async {
+  Future<List<AppleList>> getReminderLists() async {
     final lists = await channel
         .invokeListMethod<Map<Object?, Object?>>('getReminderLists');
     if (lists == null) return [];
     return lists
-        .map<AppleCalendar>((list) => AppleCalendar(
+        .map<AppleList>((list) => AppleList(
             title: list['title']! as String, id: list['id']! as String))
         .toList();
   }
 
-  Future<List> getReminders(AppleCalendar list) async {
+  Future<List> getReminders(AppleList list) async {
     final reminders = await channel.invokeListMethod<Map<Object?, Object?>>(
         'getReminders', {'id': list.id});
     if (reminders == null) return [];
@@ -76,8 +76,8 @@ class Reminder {
       '$title is due $dueDate and is done: $isCompleted\n$url\t$notes';
 }
 
-class AppleCalendar {
+class AppleList {
   final String title;
   final String id;
-  AppleCalendar({required this.title, required this.id});
+  AppleList({required this.title, required this.id});
 }
