@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSRemindersUsageDescription</key>
+	<string>Access Reminders</string>
 </dict>
 </plist>
