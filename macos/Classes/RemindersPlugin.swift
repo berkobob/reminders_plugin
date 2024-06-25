@@ -131,7 +131,6 @@ public class RemindersPlugin: NSObject, FlutterPlugin {
           let id = id,
           let reminder: EKReminder = eventStore.calendarItem(withIdentifier: id) as? EKReminder else { return nil}
         
-        let result: Bool
         do {
             try eventStore.remove(reminder, commit: true)
         } catch {
