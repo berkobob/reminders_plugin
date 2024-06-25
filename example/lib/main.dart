@@ -70,19 +70,18 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  Future<String> newReminder() async {
-    if (selectedList == null) return 'No list selected';
+  Future<Map<String, String>> newReminder() async {
+    if (selectedList == null) return {'Error': 'No list selected'};
     final success = await _remindersPlugin.addReminder(Reminder(
         list: selectedList!.id,
         title: 'Test reminder',
         dueDate: DateTime(1970, 06, 27),
         notes: 'A new reminder from the reminders_plugin example app'));
-    return success.entries.first.value;
+    return success;
   }
 
-  Future<void> delete(Reminder reminder) async {
-    await _remindersPlugin.deleteReminder(reminder);
-  }
+  Future<String?> delete(Reminder reminder) async =>
+      await _remindersPlugin.deleteReminder(reminder);
 
   @override
   Widget build(BuildContext context) {
@@ -114,33 +113,46 @@ class _MyAppState extends State<MyApp> {
                                   child: Text(list.id)),
                             ))
                         .toList())),
-            Flexible(
-                child: ListView(
-              shrinkWrap: true,
-              children: reminders
-                  .map<Widget>(
-                    (reminder) => ListTile(
-                      title: Text(reminder.title),
-                      subtitle: Column(
-                        children: [Text(reminder.notes), Text(reminder.url)],
+            Flexible(child: Builder(builder: (context) {
+              return ListView(
+                shrinkWrap: true,
+                children: reminders
+                    .map<Widget>(
+                      (reminder) => ListTile(
+                        title: Text(reminder.title),
+                        subtitle: Column(
+                          children: [Text(reminder.notes), Text(reminder.url)],
+                        ),
+                        leading: Checkbox(
+                          value: reminder.isCompleted,
+                          onChanged: (value) {},
+                        ),
+                        trailing: Text(reminder.dueDate ?? 'No date'),
+                        onLongPress: () async {
+                          final result = await delete(reminder);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: (Text(result ??
+                                    "Reminder ${reminder.title} deleted"))));
+                          }
+                          setState(() => result == null
+                              ? reminders.remove(reminder)
+                              : null);
+                        },
                       ),
-                      leading: Checkbox(
-                        value: reminder.isCompleted,
-                        onChanged: (value) {},
-                      ),
-                      trailing: Text(reminder.dueDate ?? 'No date'),
-                      onLongPress: () => delete(reminder),
-                    ),
-                  )
-                  .toList(),
-            ))
+                    )
+                    .toList(),
+              );
+            }))
           ],
         ),
         floatingActionButton: Builder(
           builder: (context) => FloatingActionButton(
-            onPressed: () => newReminder().then((result) =>
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: (Text(result))))),
+            onPressed: () => newReminder().then((result) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: (Text('$result'))));
+              if (result.keys.contains('success')) getReminders(selectedList!);
+            }),
             child: const Icon(Icons.add),
           ),
         ),

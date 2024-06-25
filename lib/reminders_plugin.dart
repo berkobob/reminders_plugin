@@ -55,9 +55,8 @@ class RemindersPlugin extends PlatformInterface {
     return result;
   }
 
-  Future<void> deleteReminder(Reminder reminder) async {
-    await channel.invokeMethod('deleteReminder', {'id': reminder.id});
-  }
+  Future<String?> deleteReminder(Reminder reminder) async =>
+      await channel.invokeMethod('deleteReminder', {'id': reminder.id});
 }
 
 class Reminder {

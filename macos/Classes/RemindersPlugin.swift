@@ -36,7 +36,7 @@ public class RemindersPlugin: NSObject, FlutterPlugin {
       case "deleteReminder":
           if let args = call.arguments as? [String: Any?] {
               if let id = args["id"] as? String {
-                  deleteReminder(id)
+                  result(deleteReminder(id))
               }
           }
         
@@ -126,16 +126,18 @@ public class RemindersPlugin: NSObject, FlutterPlugin {
         return ["success": reminder.calendarItemIdentifier]
     }
     
-    func deleteReminder(_ id: String?) {
+    func deleteReminder(_ id: String?) -> String? {
         guard
-              let reminderId = id,
-              let oiginal: EKReminder = eventStore.calendarItem(withIdentifier: reminderId) as? EKReminder else { return }
+          let id = id,
+          let reminder: EKReminder = eventStore.calendarItem(withIdentifier: id) as? EKReminder else { return nil}
         
+        let result: Bool
         do {
-            try eventStore.remove(oiginal, commit: true)
+            try eventStore.remove(reminder, commit: true)
         } catch {
-            print("Error deleting event \(oiginal)")
-            print(error.localizedDescription)
+            print("Error deleting event \(reminder)")
+            return error.localizedDescription
         }
+        return nil
     }
 }

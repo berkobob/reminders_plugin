@@ -11,21 +11,33 @@ public class RemindersPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    switch call.method {
-    case "getPlatformVersion":
-      result("macOS " + ProcessInfo.processInfo.operatingSystemVersionString)
-    case "hasAccess":
-        result(hasAccess())
-    case "requestAccess": requestAccess(result)
-    case "getDefaultList": result(getDefaultList())
-    case "getReminderLists": result(getReminderLists())
-        
-    case "getReminders":
-        if let args = call.arguments as? [String: String?] {
-            if let id = args["id"] {
-                getReminders(id!, result)
-            }
-        }
+      switch call.method {
+      case "getPlatformVersion":
+          result("macOS " + ProcessInfo.processInfo.operatingSystemVersionString)
+      case "hasAccess":
+          result(hasAccess())
+      case "requestAccess": requestAccess(result)
+      case "getDefaultList": result(getDefaultList())
+      case "getReminderLists": result(getReminderLists())
+          
+      case "getReminders":
+          if let args = call.arguments as? [String: String?] {
+              if let id = args["id"] {
+                  getReminders(id!, result)
+              }
+          }
+          
+      case "addReminder":
+          if let args = call.arguments as? [String: Any?] {
+              result(addReminder(args))
+          }
+          
+      case "deleteReminder":
+          if let args = call.arguments as? [String: Any?] {
+              if let id = args["id"] as? String {
+                  result(deleteReminder(id))
+              }
+          }
         
     default:
       result(FlutterMethodNotImplemented)
@@ -83,5 +95,48 @@ public class RemindersPlugin: NSObject, FlutterPlugin {
             ]} as! [[String : String]]
             result(map)
         }
+    }
+    
+    func addReminder(_ rem: [String: Any?]) -> [String: String] {
+        guard rem["list"] != nil,
+              let calendarID: String = rem["list"] as? String,
+              let list: EKCalendar = eventStore.calendar(withIdentifier: calendarID) else { return ["error": "Invalid list"] }
+        
+        let reminder: EKReminder = EKReminder(eventStore: eventStore)
+        
+        reminder.calendar = list
+        reminder.title = rem["title"] as? String
+        reminder.priority = rem["priority"] as? Int ?? 0
+        reminder.isCompleted = rem["isCompleted"] as? Bool ?? false
+        reminder.notes = rem["notes"] as? String
+        if let date: [String: Int?] = rem["dueDate"] as? [String: Int?] {
+            reminder.dueDateComponents = DateComponents(year: date["year"]!!, month: date["month"]!!, day: date["day"]!!, hour: date["hour"] ?? nil, minute: date["minute"] ?? nil, second: date["second"] ?? nil)
+        } else {
+            reminder.dueDateComponents = nil
+        }
+        
+        do {
+            try eventStore.save(reminder, commit: true)
+            print(reminder)
+        } catch let error {
+            return ["error": error.localizedDescription]
+        }
+        
+        return ["success": reminder.calendarItemIdentifier]
+    }
+    
+    func deleteReminder(_ id: String?) -> String? {
+        guard
+          let id = id,
+          let reminder: EKReminder = eventStore.calendarItem(withIdentifier: id) as? EKReminder else { return nil}
+        
+        let result: Bool
+        do {
+            try eventStore.remove(reminder, commit: true)
+        } catch {
+            print("Error deleting event \(reminder)")
+            return error.localizedDescription
+        }
+        return nil
     }
 }
