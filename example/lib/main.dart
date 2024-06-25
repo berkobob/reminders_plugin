@@ -22,6 +22,7 @@ class _MyAppState extends State<MyApp> {
   AppleList? _defaultList;
   List<AppleList> lists = [];
   List reminders = [];
+  AppleList? selectedList;
 
   @override
   void initState() {
@@ -41,7 +42,7 @@ class _MyAppState extends State<MyApp> {
       platformVersion = 'Failed to get platform version.';
     }
 
-    _hasAccess = await _remindersPlugin.hasAccess() ?? false;
+    _hasAccess = await _remindersPlugin.hasAccess();
     _defaultList = await _remindersPlugin.getDefaultList();
     lists = await _remindersPlugin.getReminderLists();
 
@@ -61,11 +62,26 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> getReminders(AppleList list) async {
+    selectedList = list;
     final results = await _remindersPlugin.getReminders(list);
 
     setState(() {
       reminders = results;
     });
+  }
+
+  Future<String> newReminder() async {
+    if (selectedList == null) return 'No list selected';
+    final success = await _remindersPlugin.addReminder(Reminder(
+        list: selectedList!.id,
+        title: 'Test reminder',
+        dueDate: DateTime(1970, 06, 27),
+        notes: 'A new reminder from the reminders_plugin example app'));
+    return success.entries.first.value;
+  }
+
+  Future<void> delete(Reminder reminder) async {
+    await _remindersPlugin.deleteReminder(reminder);
   }
 
   @override
@@ -88,7 +104,11 @@ class _MyAppState extends State<MyApp> {
                     shrinkWrap: true,
                     children: lists
                         .map((list) => ListTile(
-                              title: Text(list.title),
+                              title: Text(list.title,
+                                  style: list == selectedList
+                                      ? const TextStyle(
+                                          fontWeight: FontWeight.bold)
+                                      : null),
                               subtitle: TextButton(
                                   onPressed: () => getReminders(list),
                                   child: Text(list.id)),
@@ -109,11 +129,20 @@ class _MyAppState extends State<MyApp> {
                         onChanged: (value) {},
                       ),
                       trailing: Text(reminder.dueDate ?? 'No date'),
+                      onLongPress: () => delete(reminder),
                     ),
                   )
                   .toList(),
             ))
           ],
+        ),
+        floatingActionButton: Builder(
+          builder: (context) => FloatingActionButton(
+            onPressed: () => newReminder().then((result) =>
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: (Text(result))))),
+            child: const Icon(Icons.add),
+          ),
         ),
       ),
     );

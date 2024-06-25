@@ -47,6 +47,17 @@ class RemindersPlugin extends PlatformInterface {
         .map<Reminder>((reminder) => Reminder.fromJson(reminder))
         .toList();
   }
+
+  Future<Map<String, String>> addReminder(Reminder reminder) async {
+    final result = await channel.invokeMapMethod<String, String>(
+        'addReminder', reminder.toJson());
+    if (result == null) return {'error': 'unknown error'};
+    return result;
+  }
+
+  Future<void> deleteReminder(Reminder reminder) async {
+    await channel.invokeMethod('deleteReminder', {'id': reminder.id});
+  }
 }
 
 class Reminder {
@@ -57,7 +68,17 @@ class Reminder {
   int priority;
   bool isCompleted;
   String notes;
-  final String url;
+  final String? url;
+
+  Reminder(
+      {required this.list,
+      required this.title,
+      required this.notes,
+      this.dueDate})
+      : id = '',
+        priority = 0,
+        isCompleted = false,
+        url = null;
 
   Reminder.fromJson(Map<Object?, Object?> json)
       : list = json['list'] as String,
@@ -74,6 +95,28 @@ class Reminder {
   @override
   String toString() =>
       '$title is due $dueDate and is done: $isCompleted\n$url\t$notes';
+
+  Map<String, Object?> toJson() => {
+        'list': list,
+        'id': id,
+        'title': title,
+        'dueDate': dueDate?.toMap(),
+        'priority': priority.toString(),
+        'isCompleted': isCompleted.toString(),
+        'notes': notes,
+        'url': url
+      };
+}
+
+extension ToMap on DateTime {
+  toMap() => {
+        'year': year,
+        'month': month,
+        'day': day,
+        'hour': hour == 0 && minute == 0 && second == 0 ? null : hour,
+        'minute': hour == 0 && minute == 0 && second == 0 ? null : minute,
+        'second': hour == 0 && minute == 0 && second == 0 ? null : second
+      };
 }
 
 class AppleList {
