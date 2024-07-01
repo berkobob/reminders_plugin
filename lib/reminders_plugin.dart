@@ -122,4 +122,6 @@ class AppleList {
   final String title;
   final String id;
   AppleList({required this.title, required this.id});
+  @override
+  String toString() => title;
 }
