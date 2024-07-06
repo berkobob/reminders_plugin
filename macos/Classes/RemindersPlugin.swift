@@ -88,7 +88,7 @@ public class RemindersPlugin: NSObject, FlutterPlugin {
                 "list": id,
                 "id": $0.calendarItemIdentifier,
                 "title": $0.title ?? "Private",
-                "dueDate": $0.dueDateComponents?.description ?? "",
+                "dueDate": $0.dueDateComponents?.date?.description ?? "",
                 "priority": $0.priority.description,
                 "isCompleted": $0.isCompleted.description,
                 "notes": $0.notes ?? "",

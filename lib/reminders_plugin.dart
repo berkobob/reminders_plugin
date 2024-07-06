@@ -69,12 +69,12 @@ class Reminder {
   String notes;
   final String? url;
 
-  Reminder(
-      {required this.list,
-      required this.title,
-      required this.notes,
-      this.dueDate})
-      : id = '',
+  Reminder({
+    required this.list,
+    required this.title,
+    required this.notes,
+    this.dueDate,
+  })  : id = '',
         priority = 0,
         isCompleted = false,
         url = null;
@@ -83,8 +83,8 @@ class Reminder {
       : list = json['list'] as String,
         id = json['id'] as String,
         title = json['title'] as String,
-        dueDate = json['dueDate'] != null
-            ? DateTime.tryParse(json['dueDate'] as String)
+        dueDate = json['dueDate'] != ''
+            ? DateTime.parse(json['dueDate'] as String).toLocal()
             : null,
         priority = int.tryParse(json['priority'] as String) ?? 0,
         isCompleted = json['isCompleted'] == 'true',

@@ -73,10 +73,11 @@ class _MyAppState extends State<MyApp> {
   Future<Map<String, String>> newReminder() async {
     if (selectedList == null) return {'Error': 'No list selected'};
     final success = await _remindersPlugin.addReminder(Reminder(
-        list: selectedList!.id,
-        title: 'Test reminder',
-        dueDate: DateTime(1970, 06, 27),
-        notes: 'A new reminder from the reminders_plugin example app'));
+      list: selectedList!.id,
+      title: 'Test reminder',
+      dueDate: DateTime(1970, 06, 27),
+      notes: 'A new reminder from the reminders_plugin example app',
+    ));
     return success;
   }
 
@@ -127,7 +128,9 @@ class _MyAppState extends State<MyApp> {
                           value: reminder.isCompleted,
                           onChanged: (value) {},
                         ),
-                        trailing: Text(reminder.dueDate ?? 'No date'),
+                        trailing: reminder.dueDate != null
+                            ? Text('${reminder.dueDate}')
+                            : null,
                         onLongPress: () async {
                           final result = await delete(reminder);
                           if (context.mounted) {
