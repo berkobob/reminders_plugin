@@ -68,7 +68,6 @@ class Reminder {
   bool isCompleted;
   String notes;
   final String? url;
-
   Reminder({
     required this.list,
     required this.title,

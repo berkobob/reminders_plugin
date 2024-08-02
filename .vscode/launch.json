@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "reminders (debug)",
+            "request": "launch",
+            "type": "dart",
+            "program": "${workspaceFolder}/example/lib/main.dart",
+            "console": "debugConsole"
+        },
+        {
+            "name": "reminders (profile)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "program": "${workspaceFolder}/example/lib/main.dart",
+            "console": "internalConsole"
+        },
+        {
+            "name": "reminders (release)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "console": "integratedTerminal",
+            "program": "${workspaceFolder}/example/lib/main.dart"
+        }
+    ]
+}
+

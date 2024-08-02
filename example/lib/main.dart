@@ -122,7 +122,10 @@ class _MyAppState extends State<MyApp> {
                       (reminder) => ListTile(
                         title: Text(reminder.title),
                         subtitle: Column(
-                          children: [Text(reminder.notes), Text(reminder.url)],
+                          children: [
+                            Text(reminder.url),
+                            Text(reminder.notes),
+                          ],
                         ),
                         leading: Checkbox(
                           value: reminder.isCompleted,
