@@ -123,7 +123,8 @@ class _MyAppState extends State<MyApp> {
                         title: Text(reminder.title),
                         subtitle: Column(
                           children: [
-                            Text(reminder.url),
+                            if (reminder.urls.isNotEmpty)
+                              Text(reminder.urls[0].toString()),
                             Text(reminder.notes),
                           ],
                         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:linkify/linkify.dart';
 
 class RemindersPlugin extends PlatformInterface {
   static final Object _token = Object();
@@ -67,7 +68,7 @@ class Reminder {
   int priority;
   bool isCompleted;
   String notes;
-  final String? url;
+  final List<UrlElement> urls;
   Reminder({
     required this.list,
     required this.title,
@@ -76,7 +77,7 @@ class Reminder {
   })  : id = '',
         priority = 0,
         isCompleted = false,
-        url = null;
+        urls = [];
 
   Reminder.fromJson(Map<Object?, Object?> json)
       : list = json['list'] as String,
@@ -88,11 +89,14 @@ class Reminder {
         priority = int.tryParse(json['priority'] as String) ?? 0,
         isCompleted = json['isCompleted'] == 'true',
         notes = json['notes'] as String,
-        url = json['url'] as String;
+        urls =
+            linkify(json['notes'] as String).whereType<UrlElement>().toList() {
+    print(this);
+  }
 
   @override
   String toString() =>
-      '$title is due $dueDate and is done: $isCompleted\n$url\t$notes';
+      '$title is due $dueDate and is done: $isCompleted\n$urls\t$notes';
 
   Map<String, Object?> toJson() => {
         'list': list,
@@ -102,7 +106,7 @@ class Reminder {
         'priority': priority.toString(),
         'isCompleted': isCompleted.toString(),
         'notes': notes,
-        'url': url
+        'url': urls
       };
 }
 
